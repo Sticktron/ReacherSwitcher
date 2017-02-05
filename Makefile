@@ -8,5 +8,11 @@ ReacherSwitcher_FILES = Tweak.xm
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
+SUBPROJECTS += Settings
+include $(THEOS_MAKE_PATH)/aggregate.mk
+
+after-stage::
+	find . -name ".DS_STORE" -delete
+
 after-install::
 	install.exec "killall -9 SpringBoard"
