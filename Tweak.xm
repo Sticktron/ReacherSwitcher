@@ -1,10 +1,16 @@
 //
 //  Tweak.xm
 //
-//  ReacherSwitcher (iOS 9/10)
+//  ReacherSwitcher
 //
 //  ©2017 Sticktron
 //
+
+@interface AXSpringBoardServer : NSObject
++ (id)server;
+- (void)openAppSwitcher;
+- (void)dismissAppSwitcher;
+@end
 
 @interface SBReachabilityManager : NSObject
 - (void)toggleReachability;
@@ -13,9 +19,6 @@
 @interface SBMainSwitcherViewController : NSObject
 + (id)sharedInstance;
 - (BOOL)isVisible;
-- (char)activateSwitcherNoninteractively;
-- (char)dismissSwitcherNoninteractively;
-- (char)toggleSwitcherNoninteractively;
 @end
 
 
@@ -35,7 +38,12 @@ static void settingsCallback(CFNotificationCenterRef center, void *observer, CFS
 %hook SBReachabilityManager
 - (void)toggleReachability {
 	if (isEnabled) {
-		[[%c(SBMainSwitcherViewController) sharedInstance] toggleSwitcherNoninteractively];
+		BOOL isShowing = [[%c(SBMainSwitcherViewController) sharedInstance] isVisible];
+		if (!isShowing) {
+			[[%c(AXSpringBoardServer) server] openAppSwitcher];
+		} else {
+			[[%c(AXSpringBoardServer) server] dismissAppSwitcher];
+		}
 	} else {
 		%orig;
 	}
